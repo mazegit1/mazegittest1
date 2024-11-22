@@ -1,9 +1,3 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { FaCheck, FaTimes } from "react-icons/fa";
-
-// First test questions
-const firstTestQuestions = [
   {
     question: "What is HTML?",
     options: ["A markup language", "A programming language", "A database"],
@@ -165,11 +159,19 @@ const firstTestQuestions = [
     correct: 0,
   },
 
-];
 
-// Second test questions
-const secondTestQuestions = [
-  
+
+
+
+
+
+
+
+
+
+
+
+
 
   {
     question: "What does HTML stand for?",
@@ -251,203 +253,3 @@ const secondTestQuestions = [
     options: ["Controls the stacking order of elements", "Sets the size of elements", "Sets the font color"],
     correct: 0,
   },
-];
-
-const Home = () => {
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState(null);
-  const [answers, setAnswers] = useState([]);
-  const [showPopup, setShowPopup] = useState(false);
-  const [testEnded, setTestEnded] = useState(false); // Track if the test has ended
-  const [isSecondTest, setIsSecondTest] = useState(false); // Track if we're on the second test
-
-  // Select questions based on the current test
-  const questions = isSecondTest ? secondTestQuestions : firstTestQuestions;
-
-  const handleAnswerSelect = (index) => {
-    setSelectedAnswer(index);
-  };
-
-  const handleNextQuestion = () => {
-    if (selectedAnswer !== null) {
-      setAnswers([...answers, selectedAnswer]);
-      setSelectedAnswer(null);
-      if (currentQuestion < questions.length - 1) {
-        setCurrentQuestion(currentQuestion + 1);
-      } else {
-        setTestEnded(true);
-        setShowPopup(true);
-      }
-    }
-  };
-
-  const handleFinishTest = () => {
-    if (selectedAnswer !== null) {
-      setAnswers([...answers, selectedAnswer]);
-    }
-    setTestEnded(true);
-    setShowPopup(true);
-  };
-
-  const handleNextTest = () => {
-    // Reset state for the second test
-    setIsSecondTest(true);
-    setCurrentQuestion(0);
-    setSelectedAnswer(null);
-    setAnswers([]);
-    setTestEnded(false);
-    setShowPopup(false);
-  };
-
-  const handleRestartTest = () => {
-    // Reset state for the first test
-    setIsSecondTest(false);
-    setCurrentQuestion(0);
-    setSelectedAnswer(null);
-    setAnswers([]);
-    setTestEnded(false);
-    setShowPopup(false);
-  };
-
-  const handleClosePopup = () => {
-    setShowPopup(false);
-  };
-
-  const calculateScore = () => {
-    return answers.reduce(
-      (score, answer, index) => (answer === questions[index].correct ? score + 1 : score),
-      0
-    );
-  };
-
-  const correctAnswers = calculateScore();
-  const totalQuestions = questions.length;
-
-  return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-gray-100">
-      <motion.div
-        className="w-full max-w-xl p-6 bg-white rounded-lg shadow-lg"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      >
-        {currentQuestion < questions.length && !testEnded ? (
-          <>
-            <h2 className="text-2xl font-bold mb-4">{questions[currentQuestion].question}</h2>
-            <div className="space-y-4">
-              {questions[currentQuestion].options.map((option, index) => (
-                <motion.div
-                  key={index}
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ duration: 0.3 }}
-                  className={`p-4 border rounded-lg cursor-pointer ${
-                    selectedAnswer === index ? "bg-blue-500 text-white" : "bg-gray-200"
-                  }`}
-                  onClick={() => handleAnswerSelect(index)}
-                >
-                  {option}
-                </motion.div>
-              ))}
-            </div>
-            <div className="mt-6 flex justify-between">
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={handleNextQuestion}
-                className="w-full py-3 bg-blue-600 text-white rounded-lg"
-              >
-                Next Question
-              </motion.button>
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={handleFinishTest}
-                className="w-full py-3 bg-red-600 text-white rounded-lg ml-4"
-              >
-                Finish Test
-              </motion.button>
-            </div>
-          </>
-        ) : (
-          <div>
-            <h2 className="text-3xl font-bold mb-4">Test Completed!</h2>
-            <p className="text-lg mb-4">
-              You got {correctAnswers} out of {totalQuestions} correct.
-            </p>
-            {isSecondTest ? (
-              <div className="wrapper flex flex-col items-center justify-center mx-auto gap-6">
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleRestartTest}
-                  className="w-full py-3 bg-green-600 text-white rounded-lg"
-                >
-                  Restart First Test
-                </motion.button>
-                <motion.a
-                  href="/"
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleClosePopup}
-                  className="w-full text-center py-3 bg-gray-600 text-white rounded-lg mt-4"
-                >
-                  Close
-                </motion.a>
-              </div>
-            ) : (
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={handleNextTest}
-                className="w-full py-3 bg-green-600 text-white rounded-lg"
-              >
-                Next Test
-              </motion.button>
-            )}
-          </div>
-        )}
-      </motion.div>
-
-      {showPopup && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
-        >
-          <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 sm:w-1/2 text-center">
-            <h3 className="text-xl font-semibold mb-4">Congratulations!</h3>
-            <p>Your score: {correctAnswers}/{totalQuestions}</p>
-            <h4 className="text-lg mt-4">Your Answers:</h4>
-            <ul className="mt-4 space-y-2">
-              {answers.map((answer, index) => {
-                const correct = answer === questions[index].correct;
-                const correctAnswer = questions[index].options[questions[index].correct];
-                return (
-                  <li key={index} className="flex items-center justify-between">
-                    <span>
-                      {index + 1}{" "}
-                      {String.fromCharCode(97 + answer)}-{correct ? "correct" : "incorrect"}
-                    </span>
-                    <span className="flex items-center">
-                      {correct ? (
-                        <FaCheck className="text-green-500 mr-2" />
-                      ) : (
-                        <FaTimes className="text-red-500 mr-2" />
-                      )}
-                      {correctAnswer}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={handleClosePopup}
-              className="mt-4 px-6 py-2 bg-gray-600 text-white rounded"
-            >
-              Close
-            </motion.button>
-          </div>
-        </motion.div>
-      )}
-    </div>
-  );
-};
-
-export default Home;
