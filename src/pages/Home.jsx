@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { FaCheck, FaTimes } from "react-icons/fa";
 
@@ -163,7 +163,7 @@ const firstTestQuestions = [
     options: ["addEventListener", "addClick", "onClick"],
     correct: 0,
   },
-];
+  ];
 
 const secondTestQuestions = [
   {
@@ -245,7 +245,8 @@ const secondTestQuestions = [
     question: "What is the purpose of the 'z-index' property in CSS?",
     options: ["Controls the stacking order of elements", "Sets the size of elements", "Sets the font color"],
     correct: 0,
-  },];
+  },
+ ];
 
 const Home = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -255,19 +256,35 @@ const Home = () => {
   const [popupContent, setPopupContent] = useState(null);
   const [testEnded, setTestEnded] = useState(false);
   const [isSecondTest, setIsSecondTest] = useState(false);
-
+  const [timer, setTimer] = useState(600); // Timer (seconds)
+  const [questionAnswered, setQuestionAnswered] = useState(false); // Track if the question is answered
+  
   const answersRef = useRef(null); // For scrolling to answers section
+  const timerRef = useRef(null);
 
   const questions = isSecondTest ? secondTestQuestions : firstTestQuestions;
 
+  // Handle the timer
+  useEffect(() => {
+    if (timer > 0 && !testEnded) {
+      timerRef.current = setInterval(() => setTimer((prev) => prev - 1), 1000);
+    } else if (timer === 0) {
+      clearInterval(timerRef.current);
+      handleFinishTest(); // Finish test automatically when time runs out
+    }
+    return () => clearInterval(timerRef.current); // Clean up on component unmount
+  }, [timer, testEnded]);
+
   const handleAnswerSelect = (index) => {
     setSelectedAnswer(index);
+    setQuestionAnswered(true);
   };
 
   const handleNextQuestion = () => {
     if (selectedAnswer !== null) {
       setAnswers([...answers, selectedAnswer]);
       setSelectedAnswer(null);
+      setQuestionAnswered(false);
       if (currentQuestion < questions.length - 1) {
         setCurrentQuestion(currentQuestion + 1);
       } else {
@@ -292,6 +309,7 @@ const Home = () => {
     setAnswers([]);
     setTestEnded(false);
     setShowPopup(false);
+    setTimer(60); // Reset the timer for the second test
   };
 
   const handleRestartTest = () => {
@@ -301,6 +319,7 @@ const Home = () => {
     setAnswers([]);
     setTestEnded(false);
     setShowPopup(false);
+    setTimer(60); // Reset the timer for the first test
   };
 
   const calculateScore = () => {
@@ -318,7 +337,11 @@ const Home = () => {
     setPopupContent({ answer, correctAnswer, isCorrect });
     setShowPopup(true);
   };
-
+  const formatTime = (timeInSeconds) => {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = timeInSeconds % 60;
+    return `${minutes < 10 ? "0" : ""}${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  };
   const handleClosePopup = () => {
     setShowPopup(false);
     setPopupContent(null);
@@ -335,6 +358,11 @@ const Home = () => {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
+        {/* Timer */}
+        <div className="text-center mb-4">
+        <h3 className="text-lg font-semibold">Time Remaining: {formatTime(timer)}</h3>
+        </div>
+
         {currentQuestion < questions.length && !testEnded ? (
           <>
             <h2 className="text-2xl font-bold mb-4">{questions[currentQuestion].question}</h2>
@@ -353,10 +381,12 @@ const Home = () => {
                 </motion.div>
               ))}
             </div>
+
             <div className="mt-6 flex justify-between">
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={handleNextQuestion}
+                disabled={!questionAnswered}
                 className="w-full py-3 bg-blue-600 text-white rounded-lg"
               >
                 Next Question
@@ -364,6 +394,7 @@ const Home = () => {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={handleFinishTest}
+                disabled={!questionAnswered}
                 className="w-full py-3 bg-red-600 text-white rounded-lg ml-4"
               >
                 Finish Test
@@ -432,7 +463,7 @@ const Home = () => {
                     </td>
                     <td className="border border-gray-300 px-4 py-2 text-center">{correctAnswer}</td>
                     <td className="border border-gray-300 px-4 py-2 text-center">
-                      {isCorrect ? <FaCheck className="text-green-500" /> : <FaTimes className="text-red-500" />}
+                      {isCorrect ? <FaCheck color="green" /> : <FaTimes color="red" />}
                     </td>
                   </tr>
                 );
@@ -442,33 +473,26 @@ const Home = () => {
         </div>
       )}
 
-      {/* Popup for Answer Details */}
+      {/* Popup */}
       {showPopup && popupContent && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
-        >
-          <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 sm:w-1/2 text-center">
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
             <h3 className="text-xl font-semibold mb-4">
-              {popupContent.isCorrect ? "Correct Answer!" : "Incorrect Answer!"}
+              {popupContent.isCorrect ? "Correct!" : "Incorrect!"}
             </h3>
-            <p>
-              <strong>Your Answer:</strong> {popupContent.answer}
-            </p>
-            <p>
-              <strong>Correct Answer:</strong> {popupContent.correctAnswer}
+            <p className="mb-4">Your answer: {popupContent.answer}</p>
+            <p className="mb-4">
+              Correct answer: {popupContent.correctAnswer}
             </p>
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={handleClosePopup}
-              className="mt-4 px-6 py-2 bg-gray-600 text-white rounded"
+              className="w-full py-3 bg-blue-600 text-white rounded-lg"
             >
               Close
             </motion.button>
           </div>
-        </motion.div>
+        </div>
       )}
     </div>
   );

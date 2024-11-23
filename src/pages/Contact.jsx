@@ -34,7 +34,6 @@ const Contact = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log("Form submitted:", formData);
         setSubmittedMessage(formData);
         setFormData({
             fullName: '',
@@ -51,25 +50,25 @@ const Contact = () => {
     };
 
     return (
-        <div className="bg-black text-white min-h-screen py-56 flex flex-col items-center">
+        <div className="bg-black text-white min-h-screen py-16 flex flex-col items-center">
             {/* Contact Info */}
-            <div className="flex space-x-6 mb-8">
+            <div className="flex flex-wrap justify-center gap-4 mb-8 px-4">
                 <motion.div
-                    className="flex items-center space-x-2 bg-gray-300 p-3 rounded-lg"
+                    className="flex items-center space-x-2 bg-gray-300 p-3 rounded-lg w-72"
                     whileHover={{ scale: 1.05 }}
                 >
                     <FaEnvelope className="text-black" />
                     <span className="text-black">mazegitt@gmail.com</span>
                 </motion.div>
                 <motion.div
-                    className="flex items-center space-x-2 bg-gray-300 p-3 rounded-lg"
+                    className="flex items-center space-x-2 bg-gray-300 p-3 rounded-lg w-72"
                     whileHover={{ scale: 1.05 }}
                 >
                     <FaPhoneAlt className="text-black" />
-                    <span className="text-black">+994 55 688 15 00 </span>
+                    <span className="text-black">+994 55 688 15 00</span>
                 </motion.div>
                 <motion.div
-                    className="flex items-center space-x-2 bg-gray-300 p-3 rounded-lg"
+                    className="flex items-center space-x-2 bg-gray-300 p-3 rounded-lg w-72"
                     whileHover={{ scale: 1.05 }}
                 >
                     <FaMapMarkerAlt className="text-black" />
@@ -78,15 +77,18 @@ const Contact = () => {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="bg-gray-100 p-6 rounded-lg w-full max-w-xl space-y-4">
-                <div className="flex space-x-4">
+            <form
+                onSubmit={handleSubmit}
+                className="bg-gray-100 p-6 rounded-lg w-full max-w-2xl space-y-6 mx-4"
+            >
+                <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
                     <input
                         type="text"
                         name="fullName"
                         value={formData.fullName}
                         onChange={handleChange}
                         placeholder="Full Name"
-                        className="w-1/2 p-3 bg-white text-black rounded-lg focus:outline-none placeholder:text-gray-500"
+                        className="flex-1 p-3 bg-white text-black rounded-lg focus:outline-none placeholder:text-gray-500"
                     />
                     <input
                         type="email"
@@ -94,13 +96,13 @@ const Contact = () => {
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="Email"
-                        className="w-1/2 p-3 bg-white text-black rounded-lg focus:outline-none placeholder:text-gray-500"
+                        className="flex-1 p-3 bg-white text-black rounded-lg focus:outline-none placeholder:text-gray-500"
                     />
                 </div>
 
                 <div className="space-y-2">
                     <p className="text-gray-700">Why are you contacting us?</p>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                         <label className="flex items-center space-x-2 text-black">
                             <input
                                 type="checkbox"
@@ -182,27 +184,40 @@ const Contact = () => {
 
             {/* Submitted Message */}
             {submittedMessage && (
-                <div className="mt-6 text-black bg-gray-200 p-4 rounded-lg w-full max-w-xl">
+                <div className="mt-6 text-black bg-gray-200 p-4 rounded-lg w-full max-w-2xl">
                     <h3 className="text-black">Submitted Information:</h3>
-                    <p><strong>Name:</strong> {submittedMessage.fullName}</p>
-                    <p><strong>Email:</strong> {submittedMessage.email}</p>
-                    <p><strong>Message:</strong> {submittedMessage.message}</p>
-                    <p><strong>Budget:</strong> ${submittedMessage.budget}</p>
-                    <p><strong>Reasons:</strong> {Object.keys(submittedMessage.reasons).filter(key => submittedMessage.reasons[key]).join(', ') || 'None'}</p>
+                    <p>
+                        <strong>Name:</strong> {submittedMessage.fullName}
+                    </p>
+                    <p>
+                        <strong>Email:</strong> {submittedMessage.email}
+                    </p>
+                    <p>
+                        <strong>Message:</strong> {submittedMessage.message}
+                    </p>
+                    <p>
+                        <strong>Budget:</strong> ${submittedMessage.budget}
+                    </p>
+                    <p>
+                        <strong>Reasons:</strong>{' '}
+                        {Object.keys(submittedMessage.reasons)
+                            .filter((key) => submittedMessage.reasons[key])
+                            .join(', ') || 'None'}
+                    </p>
                 </div>
             )}
 
             {/* Footer */}
-            <div className="flex justify-between w-full max-w-xl mt-8 text-sm text-gray-500">
+            <div className="flex flex-col sm:flex-row justify-between w-full max-w-2xl mt-8 text-sm text-gray-500 space-y-4 sm:space-y-0">
                 <div>
-                    <p className="text-gray-700">Operating Days</p>
-                    <p>Monday to Friday</p>
+                    <p className="text-gray-200">Operating Days</p>
+                    <p className='text-white'>Monday to Friday</p>
                 </div>
-                <div className="flex space-x-4">
-                    <p className="text-gray-700">Stay Connected</p>
-                    <FaFacebookF className="cursor-pointer text-black hover:text-gray-500 transition duration-200" />
-                    <FaTwitter className="cursor-pointer text-black hover:text-gray-500 transition duration-200" />
-                    <FaLinkedinIn className="cursor-pointer text-black hover:text-gray-500 transition duration-200" />
+                <div className="flex space-x-4 justify-center">
+                    <p className="text-gray-400">Stay Connected</p>
+                    <FaFacebookF className="cursor-pointer text-gray-200 transition duration-200" />
+                    <FaTwitter className="cursor-pointer text-gray-200 transition duration-200" />
+                    <FaLinkedinIn className="cursor-pointer text-gray-200 transition duration-200" />
                 </div>
             </div>
         </div>
