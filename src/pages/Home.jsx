@@ -163,9 +163,14 @@ const firstTestQuestions = [
     options: ["addEventListener", "addClick", "onClick"],
     correct: 0,
   },
+
+
+
+
   ];
 
 const secondTestQuestions = [
+  
   {
     question: "What does HTML stand for?",
     options: ["HyperText Markup Language", "Hyper Transfer Markup Language", "HighText Markup Language"],
@@ -295,12 +300,14 @@ const Home = () => {
   };
 
   const handleFinishTest = () => {
+    // If an answer is selected, add it to answers. Otherwise, just proceed to show the test result.
     if (selectedAnswer !== null) {
       setAnswers([...answers, selectedAnswer]);
     }
     setTestEnded(true);
     setShowPopup(true);
   };
+  
 
   const handleNextTest = () => {
     setIsSecondTest(true);
@@ -394,8 +401,10 @@ const Home = () => {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={handleFinishTest}
-                disabled={!questionAnswered}
-                className="w-full py-3 bg-red-600 text-white rounded-lg ml-4"
+                disabled={questionAnswered && selectedAnswer === null}
+                className={`w-full py-3 bg-red-600 text-white rounded-lg ml-4 ${
+    selectedAnswer === null ? "opacity-50 cursor-not-allowed" : ""
+  }`}
               >
                 Finish Test
               </motion.button>
