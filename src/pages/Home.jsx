@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { FaCheck, FaTimes } from "react-icons/fa";
 
-// First test questions
 const firstTestQuestions = [
   {
     question: "What is HTML?",
@@ -164,13 +163,9 @@ const firstTestQuestions = [
     options: ["addEventListener", "addClick", "onClick"],
     correct: 0,
   },
-
 ];
 
-// Second test questions
 const secondTestQuestions = [
-  
-
   {
     question: "What does HTML stand for?",
     options: ["HyperText Markup Language", "Hyper Transfer Markup Language", "HighText Markup Language"],
@@ -250,18 +245,19 @@ const secondTestQuestions = [
     question: "What is the purpose of the 'z-index' property in CSS?",
     options: ["Controls the stacking order of elements", "Sets the size of elements", "Sets the font color"],
     correct: 0,
-  },
-];
+  },];
 
 const Home = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [answers, setAnswers] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
-  const [testEnded, setTestEnded] = useState(false); // Track if the test has ended
-  const [isSecondTest, setIsSecondTest] = useState(false); // Track if we're on the second test
+  const [popupContent, setPopupContent] = useState(null);
+  const [testEnded, setTestEnded] = useState(false);
+  const [isSecondTest, setIsSecondTest] = useState(false);
 
-  // Select questions based on the current test
+  const answersRef = useRef(null); // For scrolling to answers section
+
   const questions = isSecondTest ? secondTestQuestions : firstTestQuestions;
 
   const handleAnswerSelect = (index) => {
@@ -290,7 +286,6 @@ const Home = () => {
   };
 
   const handleNextTest = () => {
-    // Reset state for the second test
     setIsSecondTest(true);
     setCurrentQuestion(0);
     setSelectedAnswer(null);
@@ -300,7 +295,6 @@ const Home = () => {
   };
 
   const handleRestartTest = () => {
-    // Reset state for the first test
     setIsSecondTest(false);
     setCurrentQuestion(0);
     setSelectedAnswer(null);
@@ -309,15 +303,25 @@ const Home = () => {
     setShowPopup(false);
   };
 
-  const handleClosePopup = () => {
-    setShowPopup(false);
-  };
-
   const calculateScore = () => {
     return answers.reduce(
       (score, answer, index) => (answer === questions[index].correct ? score + 1 : score),
       0
     );
+  };
+
+  const handleScrollToAnswers = () => {
+    answersRef.current.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleAnswerClick = (answer, correctAnswer, isCorrect) => {
+    setPopupContent({ answer, correctAnswer, isCorrect });
+    setShowPopup(true);
+  };
+
+  const handleClosePopup = () => {
+    setShowPopup(false);
+    setPopupContent(null);
   };
 
   const correctAnswers = calculateScore();
@@ -372,29 +376,26 @@ const Home = () => {
             <p className="text-lg mb-4">
               You got {correctAnswers} out of {totalQuestions} correct.
             </p>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={handleScrollToAnswers}
+              className="w-full py-3 bg-green-600 text-white rounded-lg"
+            >
+              View Answers
+            </motion.button>
             {isSecondTest ? (
-              <div className="wrapper flex flex-col items-center justify-center mx-auto gap-6">
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleRestartTest}
-                  className="w-full py-3 bg-green-600 text-white rounded-lg"
-                >
-                  Restart First Test
-                </motion.button>
-                <motion.a
-                  href="/"
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleClosePopup}
-                  className="w-full text-center py-3 bg-gray-600 text-white rounded-lg mt-4"
-                >
-                  Close
-                </motion.a>
-              </div>
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={handleRestartTest}
+                className="w-full py-3 bg-gray-600 text-white rounded-lg mt-4"
+              >
+                Restart First Test
+              </motion.button>
             ) : (
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={handleNextTest}
-                className="w-full py-3 bg-green-600 text-white rounded-lg"
+                className="w-full py-3 bg-gray-600 text-white rounded-lg mt-4"
               >
                 Next Test
               </motion.button>
@@ -403,7 +404,46 @@ const Home = () => {
         )}
       </motion.div>
 
-      {showPopup && (
+      {/* Answers Section */}
+      {testEnded && (
+        <div ref={answersRef} className="w-full max-w-4xl mt-8 p-4 bg-white rounded-lg shadow-lg">
+          <h3 className="text-2xl font-bold mb-4">Answers</h3>
+          <table className="table-auto w-full border-collapse border border-gray-200">
+            <thead>
+              <tr>
+                <th className="border border-gray-300 px-4 py-2">#</th>
+                <th className="border border-gray-300 px-4 py-2">Your Answer</th>
+                <th className="border border-gray-300 px-4 py-2">Correct Answer</th>
+                <th className="border border-gray-300 px-4 py-2">Result</th>
+              </tr>
+            </thead>
+            <tbody>
+              {answers.map((answer, index) => {
+                const isCorrect = answer === questions[index].correct;
+                const correctAnswer = questions[index].options[questions[index].correct];
+                return (
+                  <tr key={index}>
+                    <td className="border border-gray-300 px-4 py-2 text-center">{index + 1}</td>
+                    <td
+                      className="border border-gray-300 px-4 py-2 cursor-pointer text-center"
+                      onClick={() => handleAnswerClick(questions[index].options[answer], correctAnswer, isCorrect)}
+                    >
+                      {questions[index].options[answer] || "No Answer"}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2 text-center">{correctAnswer}</td>
+                    <td className="border border-gray-300 px-4 py-2 text-center">
+                      {isCorrect ? <FaCheck className="text-green-500" /> : <FaTimes className="text-red-500" />}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Popup for Answer Details */}
+      {showPopup && popupContent && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -411,31 +451,15 @@ const Home = () => {
           className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
         >
           <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 sm:w-1/2 text-center">
-            <h3 className="text-xl font-semibold mb-4">Congratulations!</h3>
-            <p>Your score: {correctAnswers}/{totalQuestions}</p>
-            <h4 className="text-lg mt-4">Your Answers:</h4>
-            <ul className="mt-4 space-y-2">
-              {answers.map((answer, index) => {
-                const correct = answer === questions[index].correct;
-                const correctAnswer = questions[index].options[questions[index].correct];
-                return (
-                  <li key={index} className="flex items-center justify-between">
-                    <span>
-                      {index + 1}{" "}
-                      {String.fromCharCode(97 + answer)}-{correct ? "correct" : "incorrect"}
-                    </span>
-                    <span className="flex items-center">
-                      {correct ? (
-                        <FaCheck className="text-green-500 mr-2" />
-                      ) : (
-                        <FaTimes className="text-red-500 mr-2" />
-                      )}
-                      {correctAnswer}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
+            <h3 className="text-xl font-semibold mb-4">
+              {popupContent.isCorrect ? "Correct Answer!" : "Incorrect Answer!"}
+            </h3>
+            <p>
+              <strong>Your Answer:</strong> {popupContent.answer}
+            </p>
+            <p>
+              <strong>Correct Answer:</strong> {popupContent.correctAnswer}
+            </p>
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={handleClosePopup}
