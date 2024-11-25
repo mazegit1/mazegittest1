@@ -17,9 +17,9 @@ const Header = () => {
       className="bg-black z-10 text-yellow-400 fixed w-full flex justify-between items-center px-6 py-4 shadow-xl"
     >
       {/* Left: Name */}
-      <div className="text-2xl font-bold">
+      <a href="/" className="text-2xl font-bold">
         Huseyn Khalil
-      </div>
+      </a>
 
       {/* Right: Links */}
       <nav className="hidden md:flex space-x-6">
