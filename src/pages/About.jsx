@@ -55,11 +55,7 @@ const About = () => {
             <span className="font-bold">Framer Motion</span>. I also love
             exploring Python and constantly expanding my skill set.
           </p>
-          <p className="text-lg mb-4">
-            Apart from coding, I enjoy gym workouts, swimming, and connecting
-            with people from all over the world through my projects and
-            experiences.
-          </p>
+          
           <div className="flex justify-center md:justify-start space-x-6 mt-6">
             <div className="flex flex-col items-center">
               <FaCode size={32} />
